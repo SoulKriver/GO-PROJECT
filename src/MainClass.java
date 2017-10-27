@@ -22,15 +22,15 @@ public static void main(String[] args) {
 //list.add(10);
 //System.out.println(list.size());
 	
-for (int i = 1; i<4;i=i+2) {
-	for (int j =1; j<6; j++)
-	{goban.newStoneGoban(black, i,j);
+for (int i = 1;i<4;i=i+2) {
+	for (int j =1;j<6;j++)
+	{goban.newStoneGoban(black,i,j);
 }
 	
 }
-goban.newStoneGoban(black, 2,1);
-goban.newStoneGoban(black, 2,3);
-goban.newStoneGoban(white, 2,2);
+goban.newStoneGoban(black,2,1);
+goban.newStoneGoban(black,2,3);
+goban.newStoneGoban(white,2,2);
 //goban.newStoneGoban(white, 2,4);
 //goban.newStoneGoban(white, 2,3);
 //System.out.println(goban.getGobanTab()[i][i].getGroup().toString());

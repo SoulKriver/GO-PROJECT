@@ -11,7 +11,7 @@ private Player black; // le joueur noir
 private boolean bool; // un booléen pour l'évaluation, voir fonction isInGoban
 private int nbGroup; // le nombre de groupes créés sur le goban depuis le début de la partie
 
-
+//CONSTRUCTOR OF GOBAN CLASS
 
 public Goban(int psizeGoban){
     System.out.println("\nCréation du Goban !");      // création du goban en début de partie    
@@ -40,6 +40,13 @@ public Goban(int psizeGoban){
     	}
    }
 
+//METHODS OF GOBAN CLASS
+	//BOOLEAN TEST FOR GOBAN CASE INPUT
+public boolean isInTheGoban(int pline, int pcolumn) { // renvoit un booléen qui évalue si des coordonnées sont dans le goban
+bool = (pline<sizeGoban)&&(pcolumn<sizeGoban);
+return bool;}
+
+	// DISPLAY METHODS OF GOBAN STATUS
 public void displayfreeGoban() {
 	System.out.println("\nVoici l'état d'occupation du Goban :\n");
 for (int i =0;i<sizeGoban ;i++) { // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
@@ -50,7 +57,6 @@ System.out.print(gobanTab[i][j].getOccupied());
 	
 }
 System.out.println("\n");}
-
 public void displayNearCasesGoban() {
 	System.out.println("\nVoici le nombre de voisines des cases du Goban :\n");
 	for (int i =0;i<sizeGoban ;i++) { // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
@@ -63,10 +69,7 @@ System.out.print(gobanTab[i][j].getNbNearCases());
 System.out.println("\n");
 }
 
-public boolean isInTheGoban(int pline, int pcolumn) { // renvoit un booléen qui évalue si des coordonnées sont dans le goban
-bool = (pline<sizeGoban)&&(pcolumn<sizeGoban);
-return bool;}
-
+	// GOBAN STONE PLAYING METHOD
 public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode pour poser une nouvelle pierre sur le goban
 		
 	if (isInTheGoban(pline, pcolumn)==false) // test si dans le Goban
@@ -77,7 +80,7 @@ public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode po
 		if (newCase.isNotOccupied()==false) { // test si la case est occupée
 		System.out.println("Désolé, cette case est déjà occupée !");}
 	
-		else if (newCase.isNotSuicidal2(pplayer)==false) // test si le coup est suicidaire
+		else if (newCase.isNotSuicidal(pplayer)==false) // test si le coup est suicidaire
 			System.out.println("Désolé, ce coup est suicidaire pour le joueur " +pplayer.color+"!");
 		else { // Pose de la pierre
 			
@@ -111,54 +114,29 @@ public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode po
 	}
 	}
 
-
-
-
-
-
-
-
-
-
-
+	// GETTERS AND SETTERS OF GOBAN CLASS
 public int getSizeGoban() {
 	return sizeGoban;
 }
-
-
 public void setSizeGoban(int sizeGoban) {
 	this.sizeGoban = sizeGoban;
 }
-
-
 public int getNbCases() {
 	return nbCases;
 }
-
-
 public void setNbCases(int nbCases) {
 	this.nbCases = nbCases;
 }
-
-
 public int getNbStones() {
 	return nbStones;
 }
-
-
 public void setNbStones(int nbStones) {
 	this.nbStones = nbStones;
 }
-
-
 public Case[][] getGobanTab() {
 	return gobanTab;
 }
-
-
 public void setGobanTab(Case[][] gobanTab) {
 	this.gobanTab = gobanTab;
 }
-
-
 }
