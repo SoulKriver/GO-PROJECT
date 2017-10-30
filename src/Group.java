@@ -20,7 +20,7 @@ public Group (Player pplayer, Case pcase) { // création d'un nouveau groupe lors
 }
 
 //METHODS OF CASE CLASS
-public void FreedomsGroupUpdate () { // une méthode pour mettre à jour les libertés d'un groupe
+public void freedomsGroupUpdate () { // une méthode pour mettre à jour les libertés d'un groupe
 	listFreedoms.removeAll(listFreedoms);
 	Iterator itListCases = listCases.iterator();
 	while (itListCases.hasNext())

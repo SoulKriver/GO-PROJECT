@@ -39,6 +39,7 @@ public class Case {
 
 	}
 	public boolean isNotSuicidal(Player pplayer) {
+	boolean bool = true; // création du bouléen de retour
 	HashSet possibleFreedoms = getFreedomCases(); // les libertés de la case potentiellement jouée
 	HashSet possibleFriends = getNearPossibleFriendCases(pplayer); // les alliés de la case aux alentours
 	HashSet possibleFriendsFreedoms = new HashSet(); // les libertés de ses possibles alliés
@@ -50,14 +51,31 @@ public class Case {
 	}
 	possibleGroupFreedoms.addAll(possibleFriendsFreedoms); //ajout de la somme des libertés des alliés potentiels à la liste des libertés du groupe
 	possibleGroupFreedoms.remove(this); // retrait de la case potentiellement jouée aux libertés du groupe
-	boolean bool = true; // création du bouléen de retour
+	
 	if (possibleGroupFreedoms.isEmpty()==true) // test pour vérifier que le coup est suicidaire
 	{bool = false;}
 	return bool  ; // retour du booléen de réponse 
 	}
+	public boolean isKilling(Player pplayer) {
+	boolean bool = false; // création du bouléen de retour
+	HashSet possibleEnemies = getNearPossibleEnemyCases(pplayer); // stocke les potentielles pierres ennemies aux alentours	
+	Iterator itpossibleEnemies = possibleEnemies.iterator(); // iterateur
+	while(itpossibleEnemies.hasNext()) // boucle visant à parcourir les potentielles pierres enemies aux alentours
+	{Case enemy=(Case) itpossibleEnemies.next(); // stockage de la pierre ennemie en cours de traitement
+	enemy.getGroup().freedomsGroupUpdate(); // remise à jour des libertés du groupe stocké dans la case de la pierre en cours
+	HashSet enemyFreedoms = enemy.getGroup().getListFreedoms(); // stockage de la liste des libertés du groupe
+		if ((enemyFreedoms.size()==1) && (enemyFreedoms.contains(this))) //si la case potentiellement jouée est la seule et unique liberté du groupe ennemi
+		{bool = true;
+	// invocation killing
+		}
+	
+	}
+	
+	return bool;}
+	
 	
 	// GETTERS OF SURROUNDING CASES LIST
-	public HashSet getNearFriendCases() { // renvoit une liste des cases alliées aux alentours
+	public HashSet getNearFriendCases() { // renvoit une liste des cases alliées aux alentours d'une case quelconque
 		HashSet NearCasesFriend = new HashSet();
 		if (top == null) {} // si la case n'existe pas (bords du goban) alors ne rien faire
 		 else if (top.occupied == occupied)  // vérifie si le statut occupied de la case en cours est le même que celui de la case du test
@@ -77,7 +95,7 @@ public class Case {
 		 }
 		return NearCasesFriend;
 	}
-	public HashSet getNearPossibleFriendCases(Player pplayer) { // renvoit une liste des cases alliées aux alentours
+	public HashSet getNearPossibleFriendCases(Player pplayer) { // renvoit une liste des cases alliées aux alentours d'une potentielle case à jouer par un joueur
 		HashSet NearCasesFriend = new HashSet();
 		if (top == null) { // si la case n'existe pas (bords du goban) alors ne rien faire
 		} else if (top.occupied == pplayer.color) { // vérifie si le statut occupied de la case en cours est le même que celui de la case du test
@@ -117,6 +135,39 @@ public class Case {
 		 }
 		return NearFreeCases;
 		}
+	public HashSet getNearPossibleEnemyCases(Player pplayer) { // renvoit une liste des cases alliées aux alentours d'une potentielle case à jouer par un joueur
+		HashSet NearCasesEnemy = new HashSet();
+		if (top == null) { // si la case n'existe pas (bords du goban) alors ne rien faire
+		} else if (top.occupied != pplayer.color && top.occupied != 'f') { // vérifie si le statut occupied de la case en cours est le même que celui de la case du test
+			NearCasesEnemy.add(top);
+		}
+		if (down == null) {
+		} else if (down.occupied != pplayer.color && down.occupied != 'f') {
+			NearCasesEnemy.add(down);
+		}
+		if (left == null) {
+		} else if (left.occupied != pplayer.color && left.occupied != 'f') {
+			NearCasesEnemy.add(left);
+		}
+		if (right == null) {
+		} else if (right.occupied != pplayer.color && right.occupied != 'f') {
+			NearCasesEnemy.add(right);
+		}
+		return NearCasesEnemy;
+	}
+	public HashSet getNearCasesToKill (Player pplayer){ // renvoit une liste de cases à tuer
+	HashSet casesToKill = new HashSet();
+	HashSet possibleEnemies = getNearPossibleEnemyCases(pplayer); // stocke les potentielles pierres ennemies aux alentours	
+	Iterator itpossibleEnemies = possibleEnemies.iterator(); // iterateur
+	while(itpossibleEnemies.hasNext()) // boucle visant à parcourir les potentielles pierres enemies aux alentours
+	{Case enemy=(Case) itpossibleEnemies.next(); // stockage de la pierre ennemie en cours de traitement
+	enemy.getGroup().freedomsGroupUpdate(); // remise à jour des libertés du groupe stocké dans la case de la pierre en cours
+	HashSet enemyFreedoms = enemy.getGroup().getListFreedoms(); // stockage de la liste des libertés du groupe
+		if ((enemyFreedoms.size()==1) && (enemyFreedoms.contains(this))) //si la case potentiellement jouée est la seule et unique liberté du groupe ennemi}
+		{casesToKill.add(enemy);}
+	}
+	return casesToKill;
+}
 	
 	// GETTERS AND SETTERS OF CASE CLASS
 	public int getLine() {

@@ -70,49 +70,76 @@ System.out.println("\n");
 }
 
 	// GOBAN STONE PLAYING METHOD
-public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode pour poser une nouvelle pierre sur le goban
+public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode pour vérivier les conditions de pose d'une nouvelle pierre sur le goban
 		
-	if (isInTheGoban(pline, pcolumn)==false) // test si dans le Goban
-		System.out.println("Désolé, cette case n'est pas dans le Goban !"); 
+	if (isInTheGoban(pline, pcolumn)==false) // test si dans le Goban = si OK, on passe à la suite, sinon on sort
+		System.out.println("Coup \"+(nbStones+1)+ \" refusé :Désolé, cette case n'est pas dans le Goban !"); 
 	
 	else {
 		Case newCase =gobanTab[pline][pcolumn];
-		if (newCase.isNotOccupied()==false) { // test si la case est occupée
-		System.out.println("Désolé, cette case est déjà occupée !");}
+		if (newCase.isNotOccupied()==false) { // test si la case est occupée = Si OK, on passe à la suite, sinon on sort
+		System.out.println("Coup \"+(nbStones+1)+ \" refusé :Désolé, cette case est déjà occupée !");}
 	
-		else if (newCase.isNotSuicidal(pplayer)==false) // test si le coup est suicidaire
-			System.out.println("Désolé, ce coup est suicidaire pour le joueur " +pplayer.color+"!");
-		else { // Pose de la pierre
-			
-			newCase.setOccupied(pplayer.color); // pose effective = changement d'état d'occupation de la case
-			nbStones++; // incrément du nombre de pierres posées
-			System.out.println("\nCoup numéro " +nbStones+ "\nLe joueur " +pplayer.color+ " vient de jouer en ligne " +pline+ " et colomne " +pcolumn+"." );
-			
-			HashSet friends = newCase.getNearFriendCases(); // liste des pierres alliées dans les alentours
-			Iterator itFriends = friends.iterator(); // iterateur de pierres alliées
-			Group group = new Group(pplayer,newCase); // création du groupe de la nouvelle pierre
-			newCase.setGroup(group); // stockage du groupe dans la case de la nouvelle pierre
-			HashSet masterList = new HashSet(); // création d'une masterlist pour les gouverner toutes
-			masterList.add(newCase); // ajout de la nouvelle case dans la masterlist
-				
-				while (itFriends.hasNext())//boucle pour ajouter les groupes chaque pierre alliée à la master list
-					{Case friendCase = (Case)(itFriends.next()); // stockage temporaire de la case en cours
-					masterList.addAll(friendCase.getGroup().listCases);// ajout de chaque éléments de la liste à la masterlist
-					}
-				Iterator itMasterList = masterList.iterator(); // création d'un itérator dans la master list
-				
-				while (itMasterList.hasNext()) // boucle pour stocker la master list dans chaque élément de celle-ci
-					{
-					Case masterCase = (Case)(itMasterList.next()); // stockage temporaire de la case en cours
-					masterCase.getGroup().setListCases(masterList); // stockage de la masterlist dans la case
-					masterCase.getGroup().setNbStones(masterList.size()); // mise à jour de la taille du groupe
-					masterCase.getGroup().FreedomsGroupUpdate();
-					}
+		else if (newCase.isKilling(pplayer)==true) // test si on tue. Si OK = on tue le groupe et on place la pierre
+		{HashSet listCasesToKill = newCase.getNearCasesToKill(pplayer);
+		Iterator itlistCasesToKill = listCasesToKill.iterator();
+		addNewStoneGoban(pplayer, newCase);// Pose de la pierre
+			while (itlistCasesToKill.hasNext())
+			{Case killedCase = ((Case)itlistCasesToKill.next());
+			caseGroupKill(killedCase);
 			}
+		displayfreeGoban();	
+
+		}
+		else if (newCase.isNotSuicidal(pplayer)==false) // test si le coup est suicidaire
+			System.out.println("Coup "+(nbStones+1)+ " refusé : Désolé, ce coup est suicidaire pour le joueur " +pplayer.color+"!");
+		else 
+		{addNewStoneGoban(pplayer, newCase);// Pose de la pierre
 		displayfreeGoban();
+		}
+
+	}
+}	
 		
+	
+	
+protected void addNewStoneGoban(Player pplayer, Case newCase) { // Méthode pour poser une nouvelle pierre sur le goban
+	newCase.setOccupied(pplayer.color); // pose effective = changement d'état d'occupation de la case
+	nbStones++; // incrément du nombre de pierres posées
+	System.out.println("\nCoup numéro " +nbStones+ "\nLe joueur " +pplayer.color+ " vient de jouer en ligne " +newCase.getLine()+ " et colomne " +newCase.getColumn()+"." );
+	
+	HashSet friends = newCase.getNearFriendCases(); // liste des pierres alliées dans les alentours
+	Iterator itFriends = friends.iterator(); // iterateur de pierres alliées
+	Group group = new Group(pplayer,newCase); // création du groupe de la nouvelle pierre
+	newCase.setGroup(group); // stockage du groupe dans la case de la nouvelle pierre
+	HashSet masterList = new HashSet(); // création d'une masterlist pour les gouverner toutes
+	masterList.add(newCase); // ajout de la nouvelle case dans la masterlist
+		
+		while (itFriends.hasNext())//boucle pour ajouter les groupes chaque pierre alliée à la master list
+			{Case friendCase = (Case)(itFriends.next()); // stockage temporaire de la case en cours
+			masterList.addAll(friendCase.getGroup().listCases);// ajout de chaque éléments de la liste à la masterlist
+			}
+		Iterator itMasterList = masterList.iterator(); // création d'un itérator dans la master list
+		
+		while (itMasterList.hasNext()) // boucle pour stocker la master list dans chaque élément de celle-ci
+			{
+			Case masterCase = (Case)(itMasterList.next()); // stockage temporaire de la case en cours
+			masterCase.getGroup().setListCases(masterList); // stockage de la masterlist dans la case
+			masterCase.getGroup().setNbStones(masterList.size()); // mise à jour de la taille du groupe
+			masterCase.getGroup().freedomsGroupUpdate(); // mise à jour des libertés
+			}
+			}
+public void caseGroupKill(Case firstCaseToKill) { // une méthode pour tuer un groupe
+	HashSet listCasesToKill = firstCaseToKill.getGroup().getListCases(); // stockage des cases du groupe à tuer
+	Iterator itlistCasesToKill = listCasesToKill.iterator();
+	while(itlistCasesToKill.hasNext())
+	{Case caseToKill = (Case) itlistCasesToKill.next();
+	caseToKill.setOccupied('f');
+	caseToKill.setGroup(null);
+	System.out.println("La case "+caseToKill.getLetter()+caseToKill.getLine()+" est libre !");
 	}
-	}
+	System.out.println("\nLe groupe est mort !");
+}
 
 	// GETTERS AND SETTERS OF GOBAN CLASS
 public int getSizeGoban() {

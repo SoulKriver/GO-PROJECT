@@ -14,11 +14,11 @@ public class Player {
 	color = pcolor;
 	captureNb =0;
 	groupNb =0;
-	if (color =='B')
-	{komi =0;
-	}
-	else 
-	{komi =6.5;
-	}
+		if (color =='B')
+		{komi =0;
+		}
+		else 
+		{komi =6.5;
+		}
 	}
 }
