@@ -6,11 +6,8 @@ private int sizeGoban; // la taille du goban, définie par le joueur en début de 
 private int nbCases; // le nombre de case, définie par la taille du goban
 private int nbStones; // le nombre de pierres qui ont été posées sur le goban à un instant t
 private Case gobanTab [][]; // le corps du goban, un tableau d'objet Cases
-private Player white; // le joueur blanc
-private Player black; // le joueur noir
 private boolean bool; // un booléen pour l'évaluation, voir fonction isInGoban
-private int nbGroup; // le nombre de groupes créés sur le goban depuis le début de la partie
-
+private String prevMoves[]= {"Coup Pair", "Coup Impair"}; // clef format String pour l'évaluation de présence d'un KO
 //CONSTRUCTOR OF GOBAN CLASS
 
 public Goban(int psizeGoban){
@@ -19,7 +16,8 @@ public Goban(int psizeGoban){
         sizeGoban = psizeGoban;
     
         gobanTab = new Case [sizeGoban][sizeGoban];
-    
+
+        
    for (int i =0;i<sizeGoban ;i++) { // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
     	for (int j=0;j <sizeGoban;j++){
     		gobanTab[i][j] = new Case(i,j,0,'f');
@@ -40,6 +38,8 @@ public Goban(int psizeGoban){
     	}
    }
 
+
+
 //METHODS OF GOBAN CLASS
 	//BOOLEAN TEST FOR GOBAN CASE INPUT
 public boolean isInTheGoban(int pline, int pcolumn) { // renvoit un booléen qui évalue si des coordonnées sont dans le goban
@@ -47,7 +47,7 @@ bool = (pline<sizeGoban)&&(pcolumn<sizeGoban);
 return bool;}
 
 	// DISPLAY METHODS OF GOBAN STATUS
-public void displayfreeGoban() {
+public void displayfreeGoban() { // permet d'afficher dans la console l'état du goban à chaque coup
 	System.out.println("\nVoici l'état d'occupation du Goban :\n");
 for (int i =0;i<sizeGoban ;i++) { // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
 	for (int j=0;j <sizeGoban;j++){
@@ -57,7 +57,7 @@ System.out.print(gobanTab[i][j].getOccupied());
 	
 }
 System.out.println("\n");}
-public void displayNearCasesGoban() {
+public void displayNearCasesGoban() { // permet d'afficher dans la console l'état des libertés de chaque case
 	System.out.println("\nVoici le nombre de voisines des cases du Goban :\n");
 	for (int i =0;i<sizeGoban ;i++) { // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
 	for (int j=0;j <sizeGoban;j++){
@@ -68,6 +68,14 @@ System.out.print(gobanTab[i][j].getNbNearCases());
 }
 System.out.println("\n");
 }
+public String freeGobanStringKey() { // renvoit une chaîne de caractère de chaque liberté de chaque case. Utile pour l'évaluation des KO
+String string = new String();
+for (int i =0;i<sizeGoban ;i++) { // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
+	for (int j=0;j <sizeGoban;j++){
+string = string + gobanTab[i][j].getOccupied() ;
+}
+}
+return string;}
 
 	// GOBAN STONE PLAYING METHOD
 public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode pour vérivier les conditions de pose d'une nouvelle pierre sur le goban
@@ -76,33 +84,41 @@ public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode po
 		System.out.println("Coup \"+(nbStones+1)+ \" refusé :Désolé, cette case n'est pas dans le Goban !"); 
 	
 	else {
-		Case newCase =gobanTab[pline][pcolumn];
+		Case newCase =gobanTab[pline][pcolumn]; // on crée la case en question pou réaliser des tests supplémentaires
 		if (newCase.isNotOccupied()==false) { // test si la case est occupée = Si OK, on passe à la suite, sinon on sort
 		System.out.println("Coup \"+(nbStones+1)+ \" refusé :Désolé, cette case est déjà occupée !");}
 	
-		else if (newCase.isKilling(pplayer)==true) // test si on tue. Si OK = on tue le groupe et on place la pierre
-		{HashSet listCasesToKill = newCase.getNearCasesToKill(pplayer);
-		Iterator itlistCasesToKill = listCasesToKill.iterator();
-		addNewStoneGoban(pplayer, newCase);// Pose de la pierre
-			while (itlistCasesToKill.hasNext())
-			{Case killedCase = ((Case)itlistCasesToKill.next());
-			caseGroupKill(killedCase);
+		else {
+			if (newCase.isKilling(pplayer)==true) // test si on tue. Si OK = on tue le groupe et on place la pierre
+			{
+				if (newCase.isNotKO(pplayer, this)==false)
+				{System.out.println("Coup \"+(nbStones+1)+ \" refusé :Désolé, ce coup est interdit par la règle du KO"); 
+				}
+			
+				else
+				{HashSet listCasesToKill = newCase.getNearCasesToKill(pplayer);
+				Iterator itlistCasesToKill = listCasesToKill.iterator();
+				addNewStoneGoban(pplayer, newCase);// Pose de la pierre
+				while (itlistCasesToKill.hasNext())
+					{Case killedCase = ((Case)itlistCasesToKill.next());
+					caseGroupKill(killedCase);
+					}
+				displayfreeGoban();	
+
+				}
 			}
-		displayfreeGoban();	
+			else {
+				if (newCase.isNotSuicidal(pplayer)==false) // test si le coup est suicidaire
+				System.out.println("Coup "+(nbStones+1)+ " refusé : Désolé, ce coup est suicidaire pour le joueur " +pplayer.color+"!");
+				else 
+				{addNewStoneGoban(pplayer, newCase);// Pose de la pierre
+				displayfreeGoban();
+				}
+				}
 
+			}
 		}
-		else if (newCase.isNotSuicidal(pplayer)==false) // test si le coup est suicidaire
-			System.out.println("Coup "+(nbStones+1)+ " refusé : Désolé, ce coup est suicidaire pour le joueur " +pplayer.color+"!");
-		else 
-		{addNewStoneGoban(pplayer, newCase);// Pose de la pierre
-		displayfreeGoban();
-		}
-
-	}
 }	
-		
-	
-	
 protected void addNewStoneGoban(Player pplayer, Case newCase) { // Méthode pour poser une nouvelle pierre sur le goban
 	newCase.setOccupied(pplayer.color); // pose effective = changement d'état d'occupation de la case
 	nbStones++; // incrément du nombre de pierres posées
@@ -128,6 +144,7 @@ protected void addNewStoneGoban(Player pplayer, Case newCase) { // Méthode pour 
 			masterCase.getGroup().setNbStones(masterList.size()); // mise à jour de la taille du groupe
 			masterCase.getGroup().freedomsGroupUpdate(); // mise à jour des libertés
 			}
+		prevMoves[nbStones%2]=this.freeGobanStringKey();
 			}
 public void caseGroupKill(Case firstCaseToKill) { // une méthode pour tuer un groupe
 	HashSet listCasesToKill = firstCaseToKill.getGroup().getListCases(); // stockage des cases du groupe à tuer
@@ -165,5 +182,12 @@ public Case[][] getGobanTab() {
 }
 public void setGobanTab(Case[][] gobanTab) {
 	this.gobanTab = gobanTab;
+}
+public String[] getPrevMoves() {
+	return prevMoves;
+}
+
+public void setPrevMoves(String[] prevMoves) {
+	this.prevMoves = prevMoves;
 }
 }

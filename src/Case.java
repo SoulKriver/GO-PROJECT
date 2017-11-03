@@ -72,7 +72,16 @@ public class Case {
 	}
 	
 	return bool;}
-	
+	public boolean isNotKO (Player pplayer, Goban goban)
+	{int index = (this.line)*(goban.getSizeGoban()) + this.column;// création d'un entier pour identifier l'index de la case
+		String testString = goban.freeGobanStringKey(); // copie de la clef du goban
+	String testStringv2 = testString.substring(0,index)+pplayer.color+testString.substring(index+1); // création d'une chaine de caractère pour comparaison
+	System.out.println("Voici l'actuelle chaîne de caractère              :"+testString);
+	System.out.println("Voici la potentielle nouvelle chaîne de caractère :"+testStringv2);
+	System.out.println("Voici l'ancienne chaîne d'il y a deux coups :      "+goban.getPrevMoves()[(goban.getNbStones()-1)%2]);
+	boolean bool = (testStringv2!=goban.getPrevMoves()[(goban.getNbStones()-1)%2]);
+	System.out.println(bool);
+	return bool;}
 	
 	// GETTERS OF SURROUNDING CASES LIST
 	public HashSet getNearFriendCases() { // renvoit une liste des cases alliées aux alentours d'une case quelconque

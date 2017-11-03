@@ -15,15 +15,18 @@ public static void main(String[] args) {
 	Player white = new Player('W');
 	Player black = new Player ('B');
 	
-goban.newStoneGoban(black,8, 7);
-goban.newStoneGoban(black,7, 8);
-goban.newStoneGoban(black,6, 8);
-goban.newStoneGoban(white,8,6);
-goban.newStoneGoban(white,7,7);
-goban.newStoneGoban(white,6,7);
-goban.newStoneGoban(white,5,8);
-goban.newStoneGoban(white,8,8);
+	
 
+goban.newStoneGoban(black, 0, 1);
+goban.newStoneGoban(white, 0, 2);
+goban.newStoneGoban(black, 1, 2);
+goban.newStoneGoban(white, 1, 3);
+goban.newStoneGoban(black, 0, 3);
+goban.newStoneGoban(white, 0, 4);
+goban.newStoneGoban(black, 3, 3);
+goban.newStoneGoban(white, 0, 2);
+goban.newStoneGoban(black, 0, 3);
+goban.newStoneGoban(white, 0, 2);
 }
 
 
