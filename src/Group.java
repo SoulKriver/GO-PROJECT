@@ -1,7 +1,10 @@
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
-public class Group {
+public class Group implements Cloneable{
 private Player player; // le joueur propriétaire du groupe
 HashSet listCases = new HashSet(); // la liste des cases comprises dans le groupe
 private int nbCasesGroup = listCases.size(); // le nombre de pierres dans le groupe
@@ -57,5 +60,20 @@ public HashSet getListFreedoms() {
 public String toString() {
 	// TODO Auto-generated method stub
 	return " \t Ce groupe appartient au joueur "+ player.color+" et contient "+nbCasesGroup+" pierre(s)." ;
+}
+//SURCHARGE Clone
+public Object clone() {
+	Object o = null;
+	try {
+		// On récupère l'instance à renvoyer par l'appel de la 
+		// méthode super.clone()
+		o = super.clone();
+	} catch(CloneNotSupportedException cnse) {
+		// Ne devrait jamais arriver car nous implémentons 
+		// l'interface Cloneable
+		cnse.printStackTrace(System.err);
+	}
+	// on renvoie le clone
+	return o;
 }
 }

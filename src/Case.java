@@ -1,11 +1,14 @@
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
-public class Case {
+public class Case implements Cloneable {
 
 	private int line; // ligne, compris entre 1 et 19
 	private int column; // colonne, compris entre A et T sans le I
-	private char occupied; // f pour free, B pour black, W pour white
+	private Color occupied; // f pour free, B pour black, W pour white
 	private int nbNearCases; // nombre de voisines, soit 2 (coin), 3 bords et 4 centre
 	private char vectLetterColumn[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
 			'R', 'S', 'T' };
@@ -18,10 +21,9 @@ public class Case {
 
 	
 // CONSTRUCTOR OF CASE CLASS
-	public Case(int pline, int pcolumn, int pnbNearCases, char poccupied) { // builder case
+	public Case(int pline, int pcolumn, int pnbNearCases) { // builder case
 		line = pline;
 		column = pcolumn;
-		occupied = poccupied;
 		nbNearCases = pnbNearCases;
 		letter = vectLetterColumn[column];
 	}
@@ -29,8 +31,8 @@ public class Case {
 // METHODS OF CASE CLASS
 	
 	// BOOLEAN TESTS FOR CASE PLAYING
-	public boolean isNotOccupied() { // renvoit un booléen qui informe si la case est libre pour jouer
-		if (occupied == 'f') // évalue l'occupation de la case
+	public boolean isFree() { // renvoit un booléen qui informe si la case est libre pour jouer
+		if (occupied == null) // évalue l'occupation de la case
 		{
 			return true;
 		} else {
@@ -73,14 +75,16 @@ public class Case {
 	
 	return bool;}
 	public boolean isNotKO (Player pplayer, Goban goban)
-	{int index = (this.line)*(goban.getSizeGoban()) + this.column;// création d'un entier pour identifier l'index de la case
-		String testString = goban.freeGobanStringKey(); // copie de la clef du goban
-	String testStringv2 = testString.substring(0,index)+pplayer.color+testString.substring(index+1); // création d'une chaine de caractère pour comparaison
-	System.out.println("Voici l'actuelle chaîne de caractère              :"+testString);
-	System.out.println("Voici la potentielle nouvelle chaîne de caractère :"+testStringv2);
-	System.out.println("Voici l'ancienne chaîne d'il y a deux coups :      "+goban.getPrevMoves()[(goban.getNbStones()-1)%2]);
-	boolean bool = (testStringv2!=goban.getPrevMoves()[(goban.getNbStones()-1)%2]);
-	System.out.println(bool);
+	{
+		System.out.println("\n______________________________________________________\nPontentielle capture => Test de KO en cours pour le coup suivant :\n");
+		Goban gobantest = (Goban) goban.clone();
+		gobantest.addNewStoneGoban(pplayer, this);
+		String currentKey = goban.freeGobanStringKey(); // copie de la clef du goban
+	String potentialNewKey = gobantest.freeGobanStringKey(); // création de la chaîne du pontentiel goban
+	System.out.println("Voici l'actelle clef au coup "+goban.getNbStones()+":"+currentKey);
+	System.out.println("Voici la potentielle nouvelle chaîne de caractère :"+potentialNewKey);
+	System.out.println("Voici l'ancienne chaîne du coup précédent "+(goban.getNbStones()-1)+":"+goban.getStory().get(goban.getNbStones()-1));
+	boolean bool = (potentialNewKey!=goban.getStory().get(goban.getNbStones()-1));
 	return bool;}
 	
 	// GETTERS OF SURROUNDING CASES LIST
@@ -127,19 +131,19 @@ public class Case {
 	public HashSet getFreedomCases() { // renvoit une liste des cases libres aux alentours
 		HashSet NearFreeCases = new HashSet();
 		if (top == null) {} // si la case n'existe pas (bords du goban) alors ne rien faire
-		 else if (top.occupied == 'f')  // vérifie si le statut occupied de la case en cours est le même que celui de la case du test
+		 else if (top.occupied == null)  // vérifie si le statut occupied de la case en cours est le même que celui de la case du test
 		 {NearFreeCases.add(top);
 		 }
 		if (down == null) {}
-		 else if (down.occupied == 'f') 
+		 else if (down.occupied == null) 
 		 {NearFreeCases.add(down);
 		 }
 		if (left == null) {}
-		 else if (left.occupied == 'f') 
+		 else if (left.occupied == null) 
 		 {NearFreeCases.add(left);
 		 }
 		if (right == null) {}
-		 else if (right.occupied == 'f') 
+		 else if (right.occupied == null) 
 		 {NearFreeCases.add(right);
 		 }
 		return NearFreeCases;
@@ -147,19 +151,19 @@ public class Case {
 	public HashSet getNearPossibleEnemyCases(Player pplayer) { // renvoit une liste des cases alliées aux alentours d'une potentielle case à jouer par un joueur
 		HashSet NearCasesEnemy = new HashSet();
 		if (top == null) { // si la case n'existe pas (bords du goban) alors ne rien faire
-		} else if (top.occupied != pplayer.color && top.occupied != 'f') { // vérifie si le statut occupied de la case en cours est le même que celui de la case du test
+		} else if (top.occupied != pplayer.color && top.occupied != null) { // vérifie si le statut occupied de la case en cours est le même que celui de la case du test
 			NearCasesEnemy.add(top);
 		}
 		if (down == null) {
-		} else if (down.occupied != pplayer.color && down.occupied != 'f') {
+		} else if (down.occupied != pplayer.color && down.occupied != null) {
 			NearCasesEnemy.add(down);
 		}
 		if (left == null) {
-		} else if (left.occupied != pplayer.color && left.occupied != 'f') {
+		} else if (left.occupied != pplayer.color && left.occupied != null) {
 			NearCasesEnemy.add(left);
 		}
 		if (right == null) {
-		} else if (right.occupied != pplayer.color && right.occupied != 'f') {
+		} else if (right.occupied != pplayer.color && right.occupied != null) {
 			NearCasesEnemy.add(right);
 		}
 		return NearCasesEnemy;
@@ -191,10 +195,10 @@ public class Case {
 	public void setColumn(int pcolumn) {
 		this.column = pcolumn;
 	}
-	public char getOccupied() {
+	public Color getOccupied() {
 		return occupied;
 	}
-	public void setOccupied(char poccupied) {
+	public void setOccupied(Color poccupied) {
 		this.occupied = poccupied;
 	}
 	public char getLetter() {
@@ -246,4 +250,20 @@ public class Case {
 		return " \t" + this.letter + "" + this.line + " contient une pierre " + this.occupied + ". Elle possède "
 				+ this.nbNearCases + " voisines.\n";
 	}
+	// SURCHARGE clone
+	public Object clone() {
+		Object o = null;
+		try {
+			// On récupère l'instance à renvoyer par l'appel de la 
+			// méthode super.clone()
+			o = super.clone();
+		} catch(CloneNotSupportedException cnse) {
+			// Ne devrait jamais arriver car nous implémentons 
+			// l'interface Cloneable
+			cnse.printStackTrace(System.err);
+		}
+		// on renvoie le clone
+		return o;
+	}
+
 }
