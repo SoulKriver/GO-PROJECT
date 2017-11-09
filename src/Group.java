@@ -12,6 +12,12 @@ HashSet listFreedoms = new HashSet(); // la lise des cases de libertés du groupe
 private int nbFreedoms; // le nombre de liberté qu'il reste au groupe
 
 // CONSTRUCTOR OF GROUP CLASS
+public Group (Player pplayer) { // création d'un nouveau groupe
+	
+	player = pplayer;
+	player.groupNb++; // incrémentation du nombre de groupe
+	}
+
 public Group (Player pplayer, Case pcase) { // création d'un nouveau groupe lors de la pose d'une pierre
 	
 	player = pplayer;
@@ -22,7 +28,7 @@ public Group (Player pplayer, Case pcase) { // création d'un nouveau groupe lors
 	nbFreedoms = listFreedoms.size(); // le nombre de cases de libertés du groupe
 }
 
-//METHODS OF CASE CLASS
+//METHODS OF GROUP CLASS
 public void freedomsGroupUpdate () { // une méthode pour mettre à jour les libertés d'un groupe
 	listFreedoms.removeAll(listFreedoms);
 	Iterator itListCases = listCases.iterator();
@@ -32,8 +38,20 @@ public void freedomsGroupUpdate () { // une méthode pour mettre à jour les liber
 		}
 	nbFreedoms = listFreedoms.size();
 	}
+public Group groupTransfert (Goban pprocessedGoban)
+{Group copyGroup = new Group (this.player);
 
+Iterator itGroup = this.listCases.iterator();
+	while(itGroup.hasNext())
+	{Case copiedCase = (Case) itGroup.next();
+	copyGroup.listCases.add(pprocessedGoban.getGobanTab()[copiedCase.getLine()][copiedCase.getColumn()]);
+	}
+
+	
+return copyGroup;
+}
 	// GETTERS AND SETTERS OF GROUP CLASS
+
 public void setListFreedoms(HashSet listFreedoms) {
 	this.listFreedoms = listFreedoms;
 }

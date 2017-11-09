@@ -5,26 +5,27 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class Goban implements Cloneable{
+private String status;
 private int sizeGoban; // la taille du goban, définie par le joueur en début de partie
 private int nbCases; // le nombre de case, définie par la taille du goban
 private int nbPlayedStones; // le nombre de pierres qui ont été posées sur le goban à un instant t
 private Case gobanTab [][]; // le corps du goban, un tableau d'objet Cases
 private boolean bool; // un booléen pour l'évaluation, voir fonction isInGoban
-private String prevMoves[]= {"Coup Pair", "Coup Impair"}; // clef format String pour l'évaluation de présence d'un KO
 private LinkedList story = new LinkedList();
 //CONSTRUCTOR OF GOBAN CLASS
 
 
 public Goban(int psizeGoban){
-    System.out.println("\nCréation du Goban !");      // création du goban en début de partie    
+    System.out.println("\nCréation du Goban !\n_________________________________________\n");      // création du goban en début de partie    
         nbPlayedStones = 0;
         sizeGoban = psizeGoban;
-    
+        status = "Original";
         gobanTab = new Case [sizeGoban][sizeGoban];
 
         
-   for (int i =0;i<sizeGoban ;i++) { // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
-    	for (int j=0;j <sizeGoban;j++){
+   for (int i =0;i<sizeGoban ;i++)  // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
+    	{
+	   for (int j=0;j <sizeGoban;j++){
     		gobanTab[i][j] = new Case(i,j,0);
     		if (i>0) {
     		   
@@ -53,7 +54,7 @@ return bool;}
 
 	// DISPLAY METHODS OF GOBAN STATUS
 public void displayfreeGoban() { // permet d'afficher dans la console l'état du goban à chaque coup
-	System.out.println("\nVoici l'état d'occupation du Goban :\n");
+	System.out.println("\nVoici l'état d'occupation du Goban "+this.status+"  :\n");
 for (int i =0;i<sizeGoban ;i++) { // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
 	for (int j=0;j <sizeGoban;j++){
 		if (gobanTab[i][j].getOccupied()==null)
@@ -89,40 +90,38 @@ string = string + gobanTab[i][j].getOccupied() ;}
 return string;}
 
 	// GOBAN STONE PLAYING METHOD
-public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode pour vérivier les conditions de pose d'une nouvelle pierre sur le goban
-		
+public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode pour vérifier les conditions de pose d'une nouvelle pierre sur le goban
+	System.out.println("\n___________________________________________________________\nCoup numéro " +(nbPlayedStones+1)+ "\nLe joueur " +pplayer.color+ " tente de jouer en ligne " +pline+ " et colomne " +pcolumn+"." );		
 	if (isInTheGoban(pline, pcolumn)==false) // test si dans le Goban = si OK, on passe à la suite, sinon on sort
 		System.out.println("Coup "+(getNbStones()+1)+ " refusé : Désolé, cette case n'est pas dans le Goban !"); 
 	
-	else {
+	else {System.out.println("isInTheGoban = OK");
 		Case newCase =gobanTab[pline][pcolumn]; // on crée la case en question pou réaliser des tests supplémentaires
 		if (newCase.isFree()==false) { // test si la case est occupée = Si OK, on passe à la suite, sinon on sort
 		System.out.println("Coup "+(getNbStones()+1)+ " refusé : Désolé, cette case est déjà occupée !");}
 	
-		else {
+		else {System.out.println("isFree = OK");
 			if (newCase.isKilling(pplayer)==true) // test si on tue. Si OK = on tue le groupe et on place la pierre
-			{
-				if (newCase.isNotKO(pplayer, this)==false)
+			{System.out.println("isKilling = true");
+				if (newCase.isNotKO(pplayer, this)==false) // test pour vérifier si on joue un KO interdit
 				{System.out.println("Coup "+(getNbStones()+1)+ " refusé : Désolé, ce coup est interdit par la règle du KO"); 
 				}
 			
 				else
-				{HashSet listCasesToKill = newCase.getNearCasesToKill(pplayer);
-				Iterator itlistCasesToKill = listCasesToKill.iterator();
-				addNewStoneGoban(pplayer, newCase);// Pose de la pierre
-				while (itlistCasesToKill.hasNext())
-					{Case killedCase = ((Case)itlistCasesToKill.next());
-					caseGroupKill(killedCase);
-					}
+				{System.out.println("KillingProcess = Engaged");
+				newCase.killingProcess(pplayer,this); // kill de groupes adjacents par le joueur en jouant en case newCase sur le goban this
+				System.out.println("KillingProcessFinished");
 				displayfreeGoban();	
 
 				}
 			}
-			else {
+			else {System.out.println("KillingProcess = NotEngaged");
 				if (newCase.isNotSuicidal(pplayer)==false) // test si le coup est suicidaire
 				System.out.println("Coup "+(getNbStones()+1)+ " refusé : Désolé, ce coup est suicidaire pour le joueur " +pplayer.color+"!");
 				else 
-				{addNewStoneGoban(pplayer, newCase);// Pose de la pierre
+				{System.out.println("addNewStoneGoban = Engaged");
+					addNewStoneGoban(pplayer, newCase);// Pose de la pierre
+					System.out.println("addNewStoneGoban = Finished");
 				displayfreeGoban();
 				}
 				}
@@ -132,8 +131,8 @@ public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode po
 }	
 protected void addNewStoneGoban(Player pplayer, Case newCase) { // Méthode pour poser une nouvelle pierre sur le goban
 	newCase.setOccupied(pplayer.color); // pose effective = changement d'état d'occupation de la case
-	nbPlayedStones++; // incrément du nombre de pierres posées
-	System.out.println("\n___________________________________________________________\nCoup numéro " +nbPlayedStones+ "\nLe joueur " +pplayer.color+ " vient de jouer en ligne " +newCase.getLine()+ " et colomne " +newCase.getColumn()+"." );
+	this.nbPlayedStones++; // incrément du nombre de pierres posées
+	System.out.println("\n___________________________________________________________\nCoup numéro " +nbPlayedStones+ "\nLe joueur " +pplayer.color+ " vient de jouer en ligne " +newCase.getLine()+ " et colomne " +newCase.getColumn()+" sur le Goban "+this.status+"." );
 	
 	HashSet friends = newCase.getNearFriendCases(); // liste des pierres alliées dans les alentours
 	Iterator itFriends = friends.iterator(); // iterateur de pierres alliées
@@ -194,39 +193,65 @@ public Case[][] getGobanTab() {
 public void setGobanTab(Case[][] gobanTab) {
 	this.gobanTab = gobanTab;
 }
-public String[] getPrevMoves() {
-	return prevMoves;
+public String getStatus() {
+	return status;
 }
-
-public void setPrevMoves(String[] prevMoves) {
-	this.prevMoves = prevMoves;
-}
+public void setStatus(String status) {
+	this.status = status;
+	}
 public LinkedList getStory() {
 	return story;
 }
-
 public void setStory(LinkedList story) {
 	this.story = story;
 }
-
 public void printStory() {
 	for(int i = 0; i < story.size(); i++)
 		System.out.println("Au coup " + i + ", l'état du Goban était = " + story.get(i));
 		}
 //SURCHARGE Clone
 public Object clone() {
-	Object o = null;
+	Goban gobanclone = null;
 	try {
-		// On récupère l'instance à renvoyer par l'appel de la 
-		// méthode super.clone()
-		o = super.clone();
-	} catch(CloneNotSupportedException cnse) {
+		
+		gobanclone = (Goban)super.clone();
+		gobanclone.gobanTab = new Case[sizeGoban][sizeGoban];
+		for (int i =0;i<sizeGoban;i++)
+			for (int j=0;j<sizeGoban;j++)
+		{gobanclone.getGobanTab()[i][j]=((Case) this.getGobanTab()[i][j].clone());
+		System.out.println(gobanclone.getGobanTab()[i][j].getGroup());
+		gobanclone.getGobanTab()[i][j].setGroup((Group)this.getGobanTab()[i][j].getGroup().clone());
+		gobanclone.getGobanTab()[i][j].setGroup(this.getGobanTab()[i][j].getGroup().groupTransfert(gobanclone));
+		 	if (i>0) 
+		 	{  gobanclone.gobanTab[i][j].setTop(gobanclone.gobanTab[i-1][j]);
+		 	gobanclone.gobanTab[i-1][j].setDown(gobanclone.gobanTab[i][j]);
+    		}
+    	   if (j>0) 
+    	   {
+    		   gobanclone.gobanTab[i][j].setLeft(gobanclone.gobanTab[i][j-1]);
+    		   gobanclone.gobanTab[i][j-1].setRight(gobanclone.gobanTab[i][j]);
+    	
+    	   }
+    	}
+		
+		
+		
+		}
+		catch(CloneNotSupportedException cnse) {
 		// Ne devrait jamais arriver car nous implémentons 
 		// l'interface Cloneable
 		cnse.printStackTrace(System.err);
 	}
+	
+	for (int i = 0; i<sizeGoban;i++)
+		for (int j = 0; j<sizeGoban; j++)
+			gobanclone.gobanTab[i][j] = (Case)gobanTab[i][j].clone();
 	// on renvoie le clone
-	return o;
+	return gobanclone;
 }
 
+
+
 }
+
+

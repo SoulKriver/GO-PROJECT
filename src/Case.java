@@ -77,14 +77,23 @@ public class Case implements Cloneable {
 	public boolean isNotKO (Player pplayer, Goban goban)
 	{
 		System.out.println("\n______________________________________________________\nPontentielle capture => Test de KO en cours pour le coup suivant :\n");
-		Goban gobantest = (Goban) goban.clone();
-		gobantest.addNewStoneGoban(pplayer, this);
+		Goban gobanClone = (Goban) goban.clone();
+		gobanClone.setStatus("Clone");
+		System.out.println("Goban cloné !");
+		Case newCaseClone = gobanClone.getGobanTab()[this.line][this.column];
+		System.out.println("Nouvelle pierre clonée !");
+		System.out.println("KillingProcess engaged sur la case clonée du goban cloné!");
+		newCaseClone.killingProcess(pplayer,gobanClone);
+		System.out.println("KillingProcess finished sur la case clonée du goban cloné!");
+		gobanClone.displayfreeGoban();
+		goban.displayfreeGoban();
 		String currentKey = goban.freeGobanStringKey(); // copie de la clef du goban
-	String potentialNewKey = gobantest.freeGobanStringKey(); // création de la chaîne du pontentiel goban
-	System.out.println("Voici l'actelle clef au coup "+goban.getNbStones()+":"+currentKey);
+	String potentialNewKey = gobanClone.freeGobanStringKey(); // création de la chaîne du pontentiel goban
+	System.out.println("Voici l'actuelle clef au coup "+goban.getNbStones()+":"+currentKey);
 	System.out.println("Voici la potentielle nouvelle chaîne de caractère :"+potentialNewKey);
 	System.out.println("Voici l'ancienne chaîne du coup précédent "+(goban.getNbStones()-1)+":"+goban.getStory().get(goban.getNbStones()-1));
 	boolean bool = (potentialNewKey!=goban.getStory().get(goban.getNbStones()-1));
+	System.out.println("isNotKo =" +bool);
 	return bool;}
 	
 	// GETTERS OF SURROUNDING CASES LIST
@@ -181,7 +190,18 @@ public class Case implements Cloneable {
 	}
 	return casesToKill;
 }
-	
+	public void killingProcess(Player pplayer,Goban pprocessedGoban)
+	{HashSet listCasesToKill = this.getNearCasesToKill(pplayer);
+	Iterator itlistCasesToKill = listCasesToKill.iterator();
+	System.out.println("addNewStoneGoban = Engaged");
+	pprocessedGoban.addNewStoneGoban(pplayer, this);// Pose de la pierre
+	System.out.println("addNewStoneGoban = Finished");
+	while (itlistCasesToKill.hasNext())
+		{Case killedCase = ((Case)itlistCasesToKill.next());
+		pprocessedGoban.caseGroupKill(killedCase);
+		}
+		
+	}
 	// GETTERS AND SETTERS OF CASE CLASS
 	public int getLine() {
 		return line;
