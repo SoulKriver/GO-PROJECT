@@ -15,18 +15,18 @@ private LinkedList story = new LinkedList();
 //CONSTRUCTOR OF GOBAN CLASS
 
 
-public Goban(int psizeGoban){
+public Goban(int psizeGoban, String pstatus){
     System.out.println("\nCréation du Goban !\n_________________________________________\n");      // création du goban en début de partie    
         nbPlayedStones = 0;
         sizeGoban = psizeGoban;
-        status = "Original";
+        status = pstatus;
         gobanTab = new Case [sizeGoban][sizeGoban];
 
         
    for (int i =0;i<sizeGoban ;i++)  // boucle pour parcourir les cases, initialiser des cases, et remplir le tableau avec)
     	{
 	   for (int j=0;j <sizeGoban;j++){
-    		gobanTab[i][j] = new Case(i,j,0);
+    		gobanTab[i][j] = new Case(i,j,0,this);
     		if (i>0) {
     		   
     		   gobanTab[i][j].setTop(gobanTab[i-1][j]);
@@ -96,7 +96,7 @@ public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode po
 		System.out.println("Coup "+(getNbStones()+1)+ " refusé : Désolé, cette case n'est pas dans le Goban !"); 
 	
 	else {System.out.println("isInTheGoban = OK");
-		Case newCase =gobanTab[pline][pcolumn]; // on crée la case en question pou réaliser des tests supplémentaires
+		Case newCase =this.getGobanTab()[pline][pcolumn]; // on crée la case en question pou réaliser des tests supplémentaires
 		if (newCase.isFree()==false) { // test si la case est occupée = Si OK, on passe à la suite, sinon on sort
 		System.out.println("Coup "+(getNbStones()+1)+ " refusé : Désolé, cette case est déjà occupée !");}
 	
@@ -109,9 +109,9 @@ public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode po
 			
 				else
 				{System.out.println("KillingProcess = Engaged");
-				newCase.killingProcess(pplayer,this); // kill de groupes adjacents par le joueur en jouant en case newCase sur le goban this
+				newCase.killingProcess(pplayer,this,newCase); // kill de groupes adjacents par le joueur en jouant en case newCase sur le goban this
 				System.out.println("KillingProcessFinished");
-				displayfreeGoban();	
+				
 
 				}
 			}
@@ -122,21 +122,19 @@ public void newStoneGoban(Player pplayer,int pline, int pcolumn) { // Méthode po
 				{System.out.println("addNewStoneGoban = Engaged");
 					addNewStoneGoban(pplayer, newCase);// Pose de la pierre
 					System.out.println("addNewStoneGoban = Finished");
-				displayfreeGoban();
 				}
 				}
 
 			}
 		}
+	displayfreeGoban();	
 }	
 protected void addNewStoneGoban(Player pplayer, Case newCase) { // Méthode pour poser une nouvelle pierre sur le goban
 	newCase.setOccupied(pplayer.color); // pose effective = changement d'état d'occupation de la case
 	this.nbPlayedStones++; // incrément du nombre de pierres posées
-	System.out.println("\n___________________________________________________________\nCoup numéro " +nbPlayedStones+ "\nLe joueur " +pplayer.color+ " vient de jouer en ligne " +newCase.getLine()+ " et colomne " +newCase.getColumn()+" sur le Goban "+this.status+"." );
-	
 	HashSet friends = newCase.getNearFriendCases(); // liste des pierres alliées dans les alentours
 	Iterator itFriends = friends.iterator(); // iterateur de pierres alliées
-	Group group = new Group(pplayer,newCase); // création du groupe de la nouvelle pierre
+	Group group = new Group(pplayer,newCase,this); // création du groupe de la nouvelle pierre
 	newCase.setGroup(group); // stockage du groupe dans la case de la nouvelle pierre
 	HashSet masterList = new HashSet(); // création d'une masterlist pour les gouverner toutes
 	masterList.add(newCase); // ajout de la nouvelle case dans la masterlist
@@ -155,7 +153,7 @@ protected void addNewStoneGoban(Player pplayer, Case newCase) { // Méthode pour 
 			masterCase.getGroup().freedomsGroupUpdate(); // mise à jour des libertés
 			}
 		story.add(freeGobanStringKey());
-			}
+}
 public void caseGroupKill(Case firstCaseToKill) { // une méthode pour tuer un groupe
 	HashSet listCasesToKill = firstCaseToKill.getGroup().getListCases(); // stockage des cases du groupe à tuer
 	Iterator itlistCasesToKill = listCasesToKill.iterator();
@@ -211,17 +209,21 @@ public void printStory() {
 		}
 //SURCHARGE Clone
 public Object clone() {
-	Goban gobanclone = null;
+	Goban gobanclone =null;
 	try {
 		
 		gobanclone = (Goban)super.clone();
+		gobanclone.status = "Clone";
 		gobanclone.gobanTab = new Case[sizeGoban][sizeGoban];
 		for (int i =0;i<sizeGoban;i++)
 			for (int j=0;j<sizeGoban;j++)
 		{gobanclone.getGobanTab()[i][j]=((Case) this.getGobanTab()[i][j].clone());
-		System.out.println(gobanclone.getGobanTab()[i][j].getGroup());
+		gobanclone.getGobanTab()[i][j].setGoban(gobanclone);
+		if (gobanclone.getGobanTab()[i][j].getGroup()==null) {}
+		else {
 		gobanclone.getGobanTab()[i][j].setGroup((Group)this.getGobanTab()[i][j].getGroup().clone());
 		gobanclone.getGobanTab()[i][j].setGroup(this.getGobanTab()[i][j].getGroup().groupTransfert(gobanclone));
+		}
 		 	if (i>0) 
 		 	{  gobanclone.gobanTab[i][j].setTop(gobanclone.gobanTab[i-1][j]);
 		 	gobanclone.gobanTab[i-1][j].setDown(gobanclone.gobanTab[i][j]);
@@ -234,8 +236,6 @@ public Object clone() {
     	   }
     	}
 		
-		
-		
 		}
 		catch(CloneNotSupportedException cnse) {
 		// Ne devrait jamais arriver car nous implémentons 
@@ -243,10 +243,6 @@ public Object clone() {
 		cnse.printStackTrace(System.err);
 	}
 	
-	for (int i = 0; i<sizeGoban;i++)
-		for (int j = 0; j<sizeGoban; j++)
-			gobanclone.gobanTab[i][j] = (Case)gobanTab[i][j].clone();
-	// on renvoie le clone
 	return gobanclone;
 }
 

@@ -18,14 +18,16 @@ public class Case implements Cloneable {
 	private Case top;
 	private Case down;
 	private Group group;
+	private Goban goban;
 
 	
 // CONSTRUCTOR OF CASE CLASS
-	public Case(int pline, int pcolumn, int pnbNearCases) { // builder case
+	public Case(int pline, int pcolumn, int pnbNearCases, Goban pgoban) { // builder case
 		line = pline;
 		column = pcolumn;
 		nbNearCases = pnbNearCases;
 		letter = vectLetterColumn[column];
+		goban = pgoban;
 	}
 
 // METHODS OF CASE CLASS
@@ -76,18 +78,10 @@ public class Case implements Cloneable {
 	return bool;}
 	public boolean isNotKO (Player pplayer, Goban goban)
 	{
-		System.out.println("\n______________________________________________________\nPontentielle capture => Test de KO en cours pour le coup suivant :\n");
-		Goban gobanClone = (Goban) goban.clone();
-		gobanClone.setStatus("Clone");
-		System.out.println("Goban cloné !");
-		Case newCaseClone = gobanClone.getGobanTab()[this.line][this.column];
-		System.out.println("Nouvelle pierre clonée !");
-		System.out.println("KillingProcess engaged sur la case clonée du goban cloné!");
-		newCaseClone.killingProcess(pplayer,gobanClone);
-		System.out.println("KillingProcess finished sur la case clonée du goban cloné!");
-		gobanClone.displayfreeGoban();
-		goban.displayfreeGoban();
-		String currentKey = goban.freeGobanStringKey(); // copie de la clef du goban
+	System.out.println("\n______________________________________________________\nPontentielle capture => Test de KO en cours pour le coup suivant :\n");
+	Goban gobanClone = (Goban) goban.clone();
+	gobanClone.getGobanTab()[this.line][this.column].killingProcess(pplayer,gobanClone,gobanClone.getGobanTab()[this.line][this.column]);
+	String currentKey = goban.freeGobanStringKey(); // copie de la clef du goban
 	String potentialNewKey = gobanClone.freeGobanStringKey(); // création de la chaîne du pontentiel goban
 	System.out.println("Voici l'actuelle clef au coup "+goban.getNbStones()+":"+currentKey);
 	System.out.println("Voici la potentielle nouvelle chaîne de caractère :"+potentialNewKey);
@@ -96,6 +90,8 @@ public class Case implements Cloneable {
 	System.out.println("isNotKo =" +bool);
 	return bool;}
 	
+
+
 	// GETTERS OF SURROUNDING CASES LIST
 	public HashSet getNearFriendCases() { // renvoit une liste des cases alliées aux alentours d'une case quelconque
 		HashSet NearCasesFriend = new HashSet();
@@ -190,17 +186,16 @@ public class Case implements Cloneable {
 	}
 	return casesToKill;
 }
-	public void killingProcess(Player pplayer,Goban pprocessedGoban)
-	{HashSet listCasesToKill = this.getNearCasesToKill(pplayer);
+	public void killingProcess(Player pplayer,Goban pprocessedGoban, Case processedCase)
+	{
+	HashSet listCasesToKill = processedCase.getNearCasesToKill(pplayer);
 	Iterator itlistCasesToKill = listCasesToKill.iterator();
-	System.out.println("addNewStoneGoban = Engaged");
-	pprocessedGoban.addNewStoneGoban(pplayer, this);// Pose de la pierre
-	System.out.println("addNewStoneGoban = Finished");
+	
 	while (itlistCasesToKill.hasNext())
 		{Case killedCase = ((Case)itlistCasesToKill.next());
 		pprocessedGoban.caseGroupKill(killedCase);
 		}
-		
+	pprocessedGoban.addNewStoneGoban(pplayer, processedCase);// Pose de la pierre
 	}
 	// GETTERS AND SETTERS OF CASE CLASS
 	public int getLine() {
@@ -263,7 +258,12 @@ public class Case implements Cloneable {
 	public void setNbNearCases(int pnbNearCase) {
 		this.nbNearCases = pnbNearCase;
 	}
-	
+	public Goban getGoban() {
+		return goban;
+	}
+	public void setGoban(Goban goban) {
+		this.goban = goban;
+	}
 	//SURCHARGE toString
 	@Override
 	public String toString() {

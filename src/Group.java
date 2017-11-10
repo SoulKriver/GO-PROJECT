@@ -10,6 +10,7 @@ HashSet listCases = new HashSet(); // la liste des cases comprises dans le group
 private int nbCasesGroup = listCases.size(); // le nombre de pierres dans le groupe
 HashSet listFreedoms = new HashSet(); // la lise des cases de libertés du groupe
 private int nbFreedoms; // le nombre de liberté qu'il reste au groupe
+private Goban goban;
 
 // CONSTRUCTOR OF GROUP CLASS
 public Group (Player pplayer) { // création d'un nouveau groupe
@@ -18,7 +19,7 @@ public Group (Player pplayer) { // création d'un nouveau groupe
 	player.groupNb++; // incrémentation du nombre de groupe
 	}
 
-public Group (Player pplayer, Case pcase) { // création d'un nouveau groupe lors de la pose d'une pierre
+public Group (Player pplayer, Case pcase, Goban pgoban) { // création d'un nouveau groupe lors de la pose d'une pierre
 	
 	player = pplayer;
 	player.groupNb++; // incrémentation du nombre de groupe
@@ -26,6 +27,7 @@ public Group (Player pplayer, Case pcase) { // création d'un nouveau groupe lors
 	nbCasesGroup = listCases.size(); // le nombre de cases constituant le groupe
 	listFreedoms = pcase.getFreedomCases(); // la liste des cases de libertés du groupe (une seule case à la création)
 	nbFreedoms = listFreedoms.size(); // le nombre de cases de libertés du groupe
+	goban = pgoban;
 }
 
 //METHODS OF GROUP CLASS

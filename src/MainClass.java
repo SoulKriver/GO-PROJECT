@@ -10,11 +10,12 @@ public class MainClass{
 
 public static void main(String[] args) {
 	
-	Scanner sc = new Scanner(System.in);// initialisation de l'objet scanner
-	System.out.println("Bienvenue ! Sur quel goban souhaitez-vous jouer ? 9, 13 ou 19 ?"); 	
-	int mainSizeGoban =sc.nextInt();
+//	Scanner sc = new Scanner(System.in);// initialisation de l'objet scanner
+//	System.out.println("Bienvenue ! Sur quel goban souhaitez-vous jouer ? 9, 13 ou 19 ?"); 	
+//	int mainSizeGoban =sc.nextInt();
+	int mainSizeGoban = 9;
 	System.out.println("\nVous avez choisi une partie "+mainSizeGoban+" x " +mainSizeGoban+". Bonne partie !");
-	Goban goban = new Goban(mainSizeGoban); // le goban est créé
+	Goban goban = new Goban(mainSizeGoban,"Original"); // le goban est créé
 	Player white = new Player(Color.W);
 	Player black = new Player (Color.B);
 	
