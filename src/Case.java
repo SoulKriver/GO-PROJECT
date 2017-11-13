@@ -42,7 +42,7 @@ public class Case implements Cloneable {
 		}
 
 	}
-	public boolean isNotSuicidal(Player pplayer) {
+	public boolean isNotSuicidal(Player pplayer) { // renvoit un booléen qui informe si le coup n'est pas suicidaire
 	boolean bool = true; // création du bouléen de retour
 	HashSet possibleFreedoms = getFreedomCases(); // les libertés de la case potentiellement jouée
 	HashSet possibleFriends = getNearPossibleFriendCases(pplayer); // les alliés de la case aux alentours
@@ -60,7 +60,7 @@ public class Case implements Cloneable {
 	{bool = false;}
 	return bool  ; // retour du booléen de réponse 
 	}
-	public boolean isKilling(Player pplayer) {
+	public boolean isKilling(Player pplayer) { // renvoit une booléen qui informe si le coup permet de tuer un groupe adverse
 	boolean bool = false; // création du bouléen de retour
 	HashSet possibleEnemies = getNearPossibleEnemyCases(pplayer); // stocke les potentielles pierres ennemies aux alentours	
 	Iterator itpossibleEnemies = possibleEnemies.iterator(); // iterateur
@@ -76,18 +76,18 @@ public class Case implements Cloneable {
 	}
 	
 	return bool;}
-	public boolean isNotKO (Player pplayer, Goban goban)
+	public boolean isNotKO (Player pplayer, Goban goban) // renvoit un booléen qui informe si le coup est interdit par KO
 	{
 	System.out.println("\n______________________________________________________\nPontentielle capture => Test de KO en cours pour le coup suivant :\n");
 	Goban gobanClone = (Goban) goban.clone();
 	gobanClone.getGobanTab()[this.line][this.column].killingProcess(pplayer,gobanClone,gobanClone.getGobanTab()[this.line][this.column]);
 	String currentKey = goban.freeGobanStringKey(); // copie de la clef du goban
 	String potentialNewKey = gobanClone.freeGobanStringKey(); // création de la chaîne du pontentiel goban
-	System.out.println("Voici l'actuelle clef au coup "+goban.getNbStones()+":"+currentKey);
-	System.out.println("Voici la potentielle nouvelle chaîne de caractère :"+potentialNewKey);
-	System.out.println("Voici l'ancienne chaîne du coup précédent "+(goban.getNbStones()-1)+":"+goban.getStory().get(goban.getNbStones()-1));
-	boolean bool = (potentialNewKey!=goban.getStory().get(goban.getNbStones()-1));
-	System.out.println("isNotKo =" +bool);
+	String oldKey = (String) goban.getStory().get(goban.getNbPlayedStones()-1);
+//	System.out.println("CUR "+goban.getNbPlayedStones()+":"+currentKey);
+//	System.out.println("POT "+(goban.getNbPlayedStones()+1)+":"+potentialNewKey);
+//	System.out.println("OLD "+(goban.getNbPlayedStones()-1)+":"+oldKey);
+	boolean bool = !potentialNewKey.equals(oldKey);
 	return bool;}
 	
 
@@ -186,7 +186,7 @@ public class Case implements Cloneable {
 	}
 	return casesToKill;
 }
-	public void killingProcess(Player pplayer,Goban pprocessedGoban, Case processedCase)
+	public void killingProcess(Player pplayer,Goban pprocessedGoban, Case processedCase) // tue les pierres adverses suite à une capture
 	{
 	HashSet listCasesToKill = processedCase.getNearCasesToKill(pplayer);
 	Iterator itlistCasesToKill = listCasesToKill.iterator();

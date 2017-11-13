@@ -27,17 +27,19 @@ goban.newStoneGoban(white, 0, 2);
 goban.newStoneGoban(black, 1, 2);
 goban.newStoneGoban(white, 1, 3);
 goban.newStoneGoban(black, 0, 3);
+
+
+
 goban.newStoneGoban(white, 0, 4);
 goban.newStoneGoban(black, 3, 3);
 goban.newStoneGoban(white, 0, 2);
 goban.newStoneGoban(black, 0, 3);
+goban.newStoneGoban(black, 0, 8);
+
+
 
 
 }
-
-
-
-
 }
 
 
